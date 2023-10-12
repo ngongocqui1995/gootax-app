@@ -81,7 +81,7 @@ const Register = ({ navigation }: any) => {
 
   const onSubmit = async () => {
     const check = validate();
-    if (!check) {
+    if (check) {
       const [err]: any = await to(
         createCustomer({
           name: state.name?.trim?.(),

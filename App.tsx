@@ -6,6 +6,8 @@ import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityI
 import { Provider } from "react-redux";
 import History from "./pages/History";
 import Home from "./pages/Home";
+import BookCar from "./pages/Home/BookCar";
+import SearchLocation from "./pages/Home/SearchLocation";
 import Login from "./pages/Login";
 import Message from "./pages/Message";
 import Profile from "./pages/Profile";
@@ -92,18 +94,32 @@ const App = () => {
         <NavigationContainer>
           <Stack.Navigator>
             <Stack.Screen
-              name={NAVIGATOR_SCREEN.LOGIN}
-              component={Login}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
               name={NAVIGATOR_SCREEN.HOME_SCREEN}
               component={HomeScreen}
               options={{ headerShown: false }}
             />
             <Stack.Screen
+              name={NAVIGATOR_SCREEN.LOGIN}
+              component={Login}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
               name={NAVIGATOR_SCREEN.REGISTER}
               component={Register}
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name={NAVIGATOR_SCREEN.SEARCH_LOCATION}
+              component={SearchLocation}
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name={NAVIGATOR_SCREEN.BOOK_CAR}
+              component={BookCar}
               options={{
                 headerShown: false,
               }}
