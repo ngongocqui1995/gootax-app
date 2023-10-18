@@ -53,6 +53,9 @@
     "@types/react-native-vector-icons": "^6.4.15",
     "typescript": "^5.2.2"
   },
+  "resolutions": {
+    "@react-native/normalize-colors": "0.73.0"
+  },
   "bugs": {
     "url": "https://github.com/GeekyAnts/nativebase-templates/issues"
   },
