@@ -1,3 +1,5 @@
+export const GOOGLE_MAPS_API_KEY = "AIzaSyBpQ3JIiI4SqKfPyu9W408SnjF1-YGNmdE";
+
 export const NAVIGATOR_SCREEN = {
   HOME: "HOME",
   MESSAGE: "MESSAGE",

@@ -44,7 +44,7 @@ const Home = ({ navigation }: any) => {
             </Text>
             <Text fontSize={11}>Chúng tôi sẽ đưa bạn đến bất kỳ đâu!</Text>
           </Flex>
-          <Image source={require("../../assets/car.png")} size="xl" />
+          <Image alt="car" source={require("../../assets/car.png")} size="xl" />
         </Flex>
       </View>
       <Box

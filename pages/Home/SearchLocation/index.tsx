@@ -1,5 +1,4 @@
-import { useAsyncEffect, useSetState } from "ahooks";
-import to from "await-to-js";
+import { useAsyncEffect, useRequest, useSetState } from "ahooks";
 import * as Location from "expo-location";
 import {
   ChevronLeftIcon,
@@ -21,17 +20,27 @@ const SearchLocation = ({ navigation }: any) => {
   const toast = useToast();
   const [state, setState] = useSetState({
     location_from: {
+      address: "",
       lat: 0,
       lng: 0,
     },
     location_to: {
+      address: "",
+      lat: 0,
+      lng: 0,
+    },
+    location_current: {
       lat: 0,
       lng: 0,
     },
     address_from: "",
     address_to: "",
     active: 1,
-    results: [],
+  });
+
+  const { data, run } = useRequest(findGoogleMapsAPI, {
+    debounceWait: 1000,
+    manual: true,
   });
 
   useAsyncEffect(async () => {
@@ -49,33 +58,26 @@ const SearchLocation = ({ navigation }: any) => {
     if (coords) {
       const { longitude, latitude } = coords;
 
-      setState({ location_from: { lat: latitude, lng: longitude } });
+      setState({
+        location_current: { lat: latitude, lng: longitude },
+        location_from: { lat: latitude, lng: longitude, address: "" },
+      });
     }
   }, []);
 
   useAsyncEffect(async () => {
-    if (state.active === 0) {
-      if (state.address_from) {
-        const [, res] = await to(findGoogleMapsAPI(state.address_from));
-        setState({ results: res?.data?.results || [] });
-      } else {
-        setState({ results: [] });
-      }
-    }
-
-    if (state.active === 1) {
-      if (state.address_to) {
-        const [, res] = await to(findGoogleMapsAPI(state.address_to));
-        setState({ results: res?.data?.results || [] });
-      } else {
-        setState({ results: [] });
-      }
-    }
+    if (state.active === 0) run(state.address_from);
+    if (state.active === 1) run(state.address_to);
   }, [state.active]);
 
   useEffect(() => {
     if (state.location_from.lat && state.location_to.lat) {
-      navigation.navigate(NAVIGATOR_SCREEN.BOOK_CAR);
+      navigation.navigate(NAVIGATOR_SCREEN.BOOK_CAR, {
+        location_from: state.address_from
+          ? state.location_from
+          : state.location_current,
+        location_to: state.location_to,
+      });
     }
   }, [state.location_from, state.location_to]);
 
@@ -112,10 +114,7 @@ const SearchLocation = ({ navigation }: any) => {
               value={state.address_from}
               onChangeText={async (value) => {
                 setState({ address_from: value });
-                if (value) {
-                  const [, res] = await to(findGoogleMapsAPI(value));
-                  setState({ results: res?.data?.results || [] });
-                }
+                run(value);
               }}
               backgroundColor={state.active === 0 ? "gray.300" : undefined}
               InputLeftElement={
@@ -139,10 +138,7 @@ const SearchLocation = ({ navigation }: any) => {
               value={state.address_to}
               onChangeText={async (value) => {
                 setState({ address_to: value });
-                if (value) {
-                  const [, res] = await to(findGoogleMapsAPI(value));
-                  setState({ results: res?.data?.results || [] });
-                }
+                run(value);
               }}
               backgroundColor={state.active === 1 ? "gray.300" : undefined}
               isReadOnly={state.active != 1}
@@ -160,13 +156,14 @@ const SearchLocation = ({ navigation }: any) => {
       </View>
       <View h="85%" padding={6}>
         <FlatList
-          data={state.results}
+          data={data}
           renderItem={({ item }) => (
             <TouchableOpacity
               onPress={() => {
                 const location = {
                   lat: item?.geometry?.location?.lat,
                   lng: item?.geometry?.location?.lng,
+                  address: item?.formatted_address,
                 };
 
                 if (state.active === 0) {

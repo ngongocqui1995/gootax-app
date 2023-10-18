@@ -1,11 +1,11 @@
 import API from "../utils/request";
 
-export const findGoogleMapsAPI = (address: string) => {
-  return API.get(`https://maps.googleapis.com/maps/api/place/textsearch/json`, {
-    params: {
-      key: "AIzaSyDuG_Yw3NrzoN79fIWHnE10-9zSbcNvJK8",
-      query: address,
-      language: "vi-VN",
-    },
+export const findGoogleMapsAPI = async (address: string) => {
+  if (!address) return [];
+
+  const res = await API.get(`map`, {
+    params: { address: `${address}, Việt Nam` },
   });
+
+  return res?.data?.results || [];
 };
