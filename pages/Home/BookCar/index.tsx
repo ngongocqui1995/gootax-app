@@ -8,8 +8,8 @@ import {
   ChevronLeftIcon,
   Flex,
   FormControl,
-  Heading,
   Image,
+  Input,
   Select,
   View,
   useToast,
@@ -20,21 +20,36 @@ import MapView, { Marker } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import { useSelector } from "react-redux";
 import { bookCar, getTypeCars } from "../../../services/car";
+import { checkPrice } from "../../../services/location";
 import { GOOGLE_MAPS_API_KEY, NAVIGATOR_SCREEN } from "../../../utils/enum";
 
 const initError = {
   type_car: "",
+  distance: "",
+  amount: "",
 };
 
 const BookCar = ({ route, navigation }: any) => {
-  const { location_from, location_to } = route.params;
+  const { location_from, location_to } = route.params || {};
   const toast = useToast();
   const profile = useSelector((state: any) => state.profile);
   const map = React.useRef<MapView | null>();
   const [state, setState] = useSetState({
     type_cars: [],
     type_car: "",
+    distance: 0,
+    amount: 0,
     error: initError,
+    location_from: {
+      address: "",
+      lat: 0,
+      lng: 0,
+    },
+    location_to: {
+      address: "",
+      lat: 0,
+      lng: 0,
+    },
   });
 
   useAsyncEffect(async () => {
@@ -48,6 +63,20 @@ const BookCar = ({ route, navigation }: any) => {
       return false;
     }
 
+    if (state.distance <= 0) {
+      setState({
+        error: { ...initError, distance: "Khoảng cách là bắt buộc!" },
+      });
+      return false;
+    }
+
+    if (state.amount <= 0) {
+      setState({
+        error: { ...initError, amount: "Thành tiền là bắt buộc!" },
+      });
+      return false;
+    }
+
     setState({ error: initError });
 
     return true;
@@ -55,15 +84,16 @@ const BookCar = ({ route, navigation }: any) => {
 
   const onSubmit = async () => {
     const check = validate();
+
     if (check) {
       const [err]: any = await to(
         bookCar({
-          from_address: location_from?.address,
-          from_address_lat: location_from?.lat,
-          from_address_lng: location_from?.lng,
-          to_address: location_to?.address,
-          to_address_lat: location_to?.lat,
-          to_address_lng: location_to?.lng,
+          from_address: state.location_from?.address,
+          from_address_lat: state.location_from?.lat,
+          from_address_lng: state.location_from?.lng,
+          to_address: state.location_to?.address,
+          to_address_lat: state.location_to?.lat,
+          to_address_lng: state.location_to?.lng,
           name: profile?.name,
           phone: profile?.phone,
           type_car: state.type_car,
@@ -74,19 +104,19 @@ const BookCar = ({ route, navigation }: any) => {
       if (err) {
         return toast.show({
           description:
-            err?.response?.data?.message?.toString?.() || "Đăng xe thất bại!",
+            err?.response?.data?.message?.toString?.() || "Đặt xe thất bại!",
           placement: "top",
         });
       }
 
-      toast.show({ description: "Đăng xe thành công!", placement: "top" });
+      toast.show({ description: "Đặt xe thành công!", placement: "top" });
       navigation.navigate(NAVIGATOR_SCREEN.HOME);
     }
   };
 
   return (
     <Flex direction="column">
-      <View height="75%">
+      <View height="70%">
         <MapView
           ref={(ref) => {
             map.current = ref;
@@ -99,7 +129,7 @@ const BookCar = ({ route, navigation }: any) => {
             });
           }}
         >
-          {location_from.lat && location_from.lng && (
+          {location_from?.lat && location_from?.lng && (
             <Marker
               coordinate={{
                 latitude: location_from.lat,
@@ -114,7 +144,7 @@ const BookCar = ({ route, navigation }: any) => {
               />
             </Marker>
           )}
-          {location_to.lat && location_to.lng && (
+          {location_to?.lat && location_to?.lng && (
             <Marker
               coordinate={{
                 latitude: location_to.lat,
@@ -129,10 +159,10 @@ const BookCar = ({ route, navigation }: any) => {
               />
             </Marker>
           )}
-          {location_from.lat &&
-            location_from.lng &&
-            location_to.lat &&
-            location_to.lng && (
+          {location_from?.lat &&
+            location_from?.lng &&
+            location_to?.lat &&
+            location_to?.lng && (
               <MapViewDirections
                 language="vi"
                 strokeWidth={5}
@@ -146,29 +176,49 @@ const BookCar = ({ route, navigation }: any) => {
                   longitude: location_to.lng,
                 }}
                 apikey={GOOGLE_MAPS_API_KEY}
+                onReady={(distance) => {
+                  setState({
+                    location_from: {
+                      address: distance?.legs?.[0]?.start_address || "",
+                      lat: distance?.legs?.[0]?.start_location?.lat || 0,
+                      lng: distance?.legs?.[0]?.start_location?.lng || 0,
+                    },
+                    location_to: {
+                      address: distance?.legs?.[0]?.end_address || "",
+                      lat: distance?.legs?.[0]?.end_location?.lat || 0,
+                      lng: distance?.legs?.[0]?.end_location?.lng || 0,
+                    },
+                  });
+                }}
               />
             )}
         </MapView>
       </View>
-      <View height="25%">
+      <View height="30%">
         <Center>
-          <Box w="90%" py="4">
-            <Heading
-              size="sm"
-              color="coolGray.800"
-              _dark={{
-                color: "warmGray.50",
-              }}
-              fontWeight="semibold"
-            >
-              Thông tin đặt xe
-            </Heading>
-            <View mt="4">
+          <Box w="90%" p="4">
+            <View>
               <FormControl isRequired isInvalid={!!state.error.type_car}>
                 <FormControl.Label>Loại xe</FormControl.Label>
                 <Select
                   placeholder="Chọn loại xe"
-                  onValueChange={(value) => setState({ type_car: value })}
+                  onValueChange={async (value) => {
+                    const [, res] = await to(
+                      checkPrice({
+                        from_lat: location_from?.lat,
+                        from_lng: location_from?.lng,
+                        to_lat: location_to?.lat,
+                        to_lng: location_to?.lng,
+                        type_car_id: value,
+                      })
+                    );
+                    setState({
+                      type_car: value,
+                      distance: res?.distance || 0,
+                      amount: res?.amount || 0,
+                      error: { ...initError, distance: "", amount: "" },
+                    });
+                  }}
                 >
                   {state.type_cars?.map?.((item: any) => (
                     <Select.Item
@@ -182,7 +232,29 @@ const BookCar = ({ route, navigation }: any) => {
                   {state.error.type_car}
                 </FormControl.ErrorMessage>
               </FormControl>
-              <Button onPress={onSubmit} mt="2" colorScheme="indigo">
+              <FormControl isRequired isInvalid={!!state.error.distance}>
+                <FormControl.Label>Khoảng cách</FormControl.Label>
+                <Input
+                  value={`${state.distance || 0}`}
+                  isDisabled
+                  placeholder="Khoảng cách"
+                />
+                <FormControl.ErrorMessage>
+                  {state.error.distance}
+                </FormControl.ErrorMessage>
+              </FormControl>
+              <FormControl isRequired isInvalid={!!state.error.amount}>
+                <FormControl.Label>Thành tiền</FormControl.Label>
+                <Input
+                  value={`${state.amount || 0}`}
+                  isDisabled
+                  placeholder="Thành tiền"
+                />
+                <FormControl.ErrorMessage>
+                  {state.error.amount}
+                </FormControl.ErrorMessage>
+              </FormControl>
+              <Button onPress={onSubmit} my="4" colorScheme="indigo">
                 Đặt xe
               </Button>
             </View>
