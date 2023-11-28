@@ -99,11 +99,6 @@ const App = () => {
         <NavigationContainer>
           <Stack.Navigator>
             <Stack.Screen
-              name={NAVIGATOR_SCREEN.HOME_SCREEN}
-              component={HomeScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
               name={NAVIGATOR_SCREEN.LOGIN}
               component={Login}
               options={{ headerShown: false }}
@@ -114,6 +109,11 @@ const App = () => {
               options={{
                 headerShown: false,
               }}
+            />
+            <Stack.Screen
+              name={NAVIGATOR_SCREEN.HOME_SCREEN}
+              component={HomeScreen}
+              options={{ headerShown: false }}
             />
             <Stack.Screen
               name={NAVIGATOR_SCREEN.BOOK_CAR}

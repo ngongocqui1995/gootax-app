@@ -1,3 +1,4 @@
+import { useIsFocused } from "@react-navigation/native";
 import { useAsyncEffect, useSetState } from "ahooks";
 import to from "await-to-js";
 import dayjs from "dayjs";
@@ -26,22 +27,22 @@ import {
   STATUS_BOOK,
 } from "../../utils/enum";
 
-const Activate = ({ navigation, route }: any) => {
-  const { reload } = route.params || {};
+const Activate = ({ navigation }: any) => {
+  const isFocused = useIsFocused();
   const profile = useSelector((state: any) => state.profile);
   const [state, setState] = useSetState({ data: [], loading: false });
 
   const loadMore = async () => {
     setState({ loading: true });
-    const [err, res] = await to(getBookCar(profile?.phone || "0857894175"));
+    const [, res] = await to(getBookCar(profile?.phone));
     setState({ data: res?.data || [], loading: false });
   };
 
   useAsyncEffect(async () => {
-    // if (profile?.phone) {
-    await loadMore();
-    // }
-  }, [reload]);
+    if (profile?.phone) {
+      await loadMore();
+    }
+  }, [isFocused]);
 
   return (
     <Box safeArea px="4" py="4">

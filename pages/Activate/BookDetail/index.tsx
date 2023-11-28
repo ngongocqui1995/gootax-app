@@ -52,7 +52,7 @@ const BookDetail = ({ route, navigation }: any) => {
     }
 
     toast.show({ description: "Huỷ đặt xe thành công!", placement: "top" });
-    navigation.navigate(NAVIGATOR_SCREEN.ACTIVATE, { reload: true });
+    navigation.navigate(NAVIGATOR_SCREEN.ACTIVATE);
   };
 
   return (
