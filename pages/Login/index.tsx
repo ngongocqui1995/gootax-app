@@ -1,29 +1,53 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useSetState } from "ahooks";
 import to from "await-to-js";
 import {
   Box,
   Button,
   Center,
+  Flex,
   FormControl,
   HStack,
   Heading,
   Input,
   Link,
+  Spinner,
   Text,
   VStack,
   useToast,
 } from "native-base";
 import { useDispatch } from "react-redux";
-import { loginCustomer } from "../../services/customer";
+import { getProfile, loginCustomer } from "../../services/customer";
 import { updateProfileInfo } from "../../slices/profileSlice";
 import { NAVIGATOR_SCREEN } from "../../utils/enum";
 
 const Login = ({ navigation }: any) => {
   const toast = useToast();
   const dispatch = useDispatch();
-  const [state, setState] = useSetState({ phone: "", password: "" });
+  const [state, setState] = useSetState({
+    phone: "",
+    password: "",
+    loading: false,
+  });
+
+  const updateProfile = async (token: string): Promise<boolean> => {
+    const [err, res]: any = await to(getProfile(token));
+    if (err) {
+      toast.show({
+        description:
+          err?.response?.data?.message?.toString?.() || "Đăng nhập thất bại!",
+        placement: "top",
+      });
+      return false;
+    }
+
+    dispatch(updateProfileInfo(res.data));
+    return true;
+  };
 
   const handleLogin = async () => {
+    setState({ loading: true });
+
     const [err, res]: any = await to(
       loginCustomer({
         phone: state.phone?.trim?.(),
@@ -39,9 +63,13 @@ const Login = ({ navigation }: any) => {
       });
     }
 
-    toast.show({ description: "Đăng nhập thành công!", placement: "top" });
-    dispatch(updateProfileInfo({ token: res.data?.token || "" } as any));
-    navigation.navigate(NAVIGATOR_SCREEN.HOME_SCREEN);
+    const token = res?.data?.token || "";
+    if (await updateProfile(token)) {
+      toast.show({ description: "Đăng nhập thành công!", placement: "top" });
+      await AsyncStorage.setItem("token", token);
+      navigation.navigate(NAVIGATOR_SCREEN.HOME_SCREEN);
+    }
+    setState({ loading: false });
   };
 
   return (
@@ -122,6 +150,21 @@ const Login = ({ navigation }: any) => {
           </HStack>
         </VStack>
       </Box>
+      {state.loading && (
+        <Flex
+          position="absolute"
+          top={0}
+          bottom={0}
+          left={0}
+          right={0}
+          bg="rgba(0, 0, 0, 0.2)"
+          flex="1"
+          justifyContent="center"
+          alignItems="center"
+        >
+          <Spinner color="cyan.500" size="lg" />
+        </Flex>
+      )}
     </Center>
   );
 };

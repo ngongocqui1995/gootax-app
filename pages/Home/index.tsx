@@ -1,5 +1,3 @@
-import { useAsyncEffect } from "ahooks";
-import to from "await-to-js";
 import {
   Box,
   ChevronRightIcon,
@@ -11,23 +9,9 @@ import {
 } from "native-base";
 import { TouchableOpacity } from "react-native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import { useDispatch, useSelector } from "react-redux";
-import { getProfile } from "../../services/customer";
-import { updateProfileInfo } from "../../slices/profileSlice";
 import { NAVIGATOR_SCREEN } from "../../utils/enum";
 
 const Home = ({ navigation }: any) => {
-  const profile = useSelector((state: any) => state.profile);
-  const dispatch = useDispatch();
-
-  useAsyncEffect(async () => {
-    if (profile?.token) {
-      const [err, res] = await to(getProfile(profile.token));
-      if (err) return;
-      dispatch(updateProfileInfo(res.data));
-    }
-  }, [profile?.token]);
-
   return (
     <View>
       <View h="26%" backgroundColor="green.300" padding="6">

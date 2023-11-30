@@ -70,7 +70,7 @@ const BookDetail = ({ route, navigation }: any) => {
             });
           }}
         >
-          {location_from?.lat && location_from?.lng && (
+          {location_from?.lat && location_from?.lng ? (
             <Marker
               coordinate={{
                 latitude: location_from.lat,
@@ -84,8 +84,8 @@ const BookDetail = ({ route, navigation }: any) => {
                 style={{ height: 35, width: 35 }}
               />
             </Marker>
-          )}
-          {location_to?.lat && location_to?.lng && (
+          ) : null}
+          {location_to?.lat && location_to?.lng ? (
             <Marker
               coordinate={{
                 latitude: location_to.lat,
@@ -99,26 +99,26 @@ const BookDetail = ({ route, navigation }: any) => {
                 style={{ height: 35, width: 35 }}
               />
             </Marker>
-          )}
+          ) : null}
           {location_from?.lat &&
-            location_from?.lng &&
-            location_to?.lat &&
-            location_to?.lng && (
-              <MapViewDirections
-                language="vi"
-                strokeWidth={5}
-                strokeColor="green"
-                origin={{
-                  latitude: location_from.lat,
-                  longitude: location_from.lng,
-                }}
-                destination={{
-                  latitude: location_to.lat,
-                  longitude: location_to.lng,
-                }}
-                apikey={GOOGLE_MAPS_API_KEY}
-              />
-            )}
+          location_from?.lng &&
+          location_to?.lat &&
+          location_to?.lng ? (
+            <MapViewDirections
+              language="vi"
+              strokeWidth={5}
+              strokeColor="green"
+              origin={{
+                latitude: location_from.lat,
+                longitude: location_from.lng,
+              }}
+              destination={{
+                latitude: location_to.lat,
+                longitude: location_to.lng,
+              }}
+              apikey={GOOGLE_MAPS_API_KEY}
+            />
+          ) : null}
         </MapView>
       </View>
       <View height="30%">

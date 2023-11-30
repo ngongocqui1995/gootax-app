@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   Avatar,
   Center,
@@ -142,6 +143,7 @@ const Profile = ({ navigation }: any) => {
         <Text
           onPress={() => {
             dispatch(resetProfile());
+            AsyncStorage.removeItem("token");
             navigation.navigate(NAVIGATOR_SCREEN.LOGIN);
           }}
           fontSize={14}

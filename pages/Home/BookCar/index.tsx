@@ -129,7 +129,7 @@ const BookCar = ({ route, navigation }: any) => {
             });
           }}
         >
-          {location_from?.lat && location_from?.lng && (
+          {location_from?.lat && location_from?.lng ? (
             <Marker
               coordinate={{
                 latitude: location_from.lat,
@@ -143,8 +143,8 @@ const BookCar = ({ route, navigation }: any) => {
                 style={{ height: 35, width: 35 }}
               />
             </Marker>
-          )}
-          {location_to?.lat && location_to?.lng && (
+          ) : null}
+          {location_to?.lat && location_to?.lng ? (
             <Marker
               coordinate={{
                 latitude: location_to.lat,
@@ -158,40 +158,40 @@ const BookCar = ({ route, navigation }: any) => {
                 style={{ height: 35, width: 35 }}
               />
             </Marker>
-          )}
+          ) : null}
           {location_from?.lat &&
-            location_from?.lng &&
-            location_to?.lat &&
-            location_to?.lng && (
-              <MapViewDirections
-                language="vi"
-                strokeWidth={5}
-                strokeColor="green"
-                origin={{
-                  latitude: location_from.lat,
-                  longitude: location_from.lng,
-                }}
-                destination={{
-                  latitude: location_to.lat,
-                  longitude: location_to.lng,
-                }}
-                apikey={GOOGLE_MAPS_API_KEY}
-                onReady={(distance) => {
-                  setState({
-                    location_from: {
-                      address: distance?.legs?.[0]?.start_address || "",
-                      lat: distance?.legs?.[0]?.start_location?.lat || 0,
-                      lng: distance?.legs?.[0]?.start_location?.lng || 0,
-                    },
-                    location_to: {
-                      address: distance?.legs?.[0]?.end_address || "",
-                      lat: distance?.legs?.[0]?.end_location?.lat || 0,
-                      lng: distance?.legs?.[0]?.end_location?.lng || 0,
-                    },
-                  });
-                }}
-              />
-            )}
+          location_from?.lng &&
+          location_to?.lat &&
+          location_to?.lng ? (
+            <MapViewDirections
+              language="vi"
+              strokeWidth={5}
+              strokeColor="green"
+              origin={{
+                latitude: location_from.lat,
+                longitude: location_from.lng,
+              }}
+              destination={{
+                latitude: location_to.lat,
+                longitude: location_to.lng,
+              }}
+              apikey={GOOGLE_MAPS_API_KEY}
+              onReady={(distance) => {
+                setState({
+                  location_from: {
+                    address: distance?.legs?.[0]?.start_address || "",
+                    lat: distance?.legs?.[0]?.start_location?.lat || 0,
+                    lng: distance?.legs?.[0]?.start_location?.lng || 0,
+                  },
+                  location_to: {
+                    address: distance?.legs?.[0]?.end_address || "",
+                    lat: distance?.legs?.[0]?.end_location?.lat || 0,
+                    lng: distance?.legs?.[0]?.end_location?.lng || 0,
+                  },
+                });
+              }}
+            />
+          ) : null}
         </MapView>
       </View>
       <View height="30%">

@@ -39,7 +39,7 @@ const Activate = ({ navigation }: any) => {
   };
 
   useAsyncEffect(async () => {
-    if (profile?.phone) {
+    if (profile?.phone && isFocused) {
       await loadMore();
     }
   }, [isFocused]);
