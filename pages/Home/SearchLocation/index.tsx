@@ -1,5 +1,6 @@
 import { useAsyncEffect, useRequest, useSetState } from "ahooks";
 import * as Location from "expo-location";
+import { LocationAccuracy } from "expo-location";
 import {
   ChevronLeftIcon,
   Divider,
@@ -9,7 +10,6 @@ import {
   Input,
   Text,
   View,
-  useToast,
 } from "native-base";
 import { useEffect } from "react";
 import { TouchableOpacity } from "react-native";
@@ -17,7 +17,6 @@ import { findGoogleMapsAPI } from "../../../services/location";
 import { NAVIGATOR_SCREEN } from "../../../utils/enum";
 
 const SearchLocation = ({ navigation }: any) => {
-  const toast = useToast();
   const [state, setState] = useSetState({
     location_from: {
       address: "",
@@ -45,15 +44,11 @@ const SearchLocation = ({ navigation }: any) => {
 
   useAsyncEffect(async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== "granted") {
-      toast.show({
-        description: "Bạn không cho phép truy cập vị trí!",
-        placement: "top",
-      });
-      return;
-    }
+    if (status !== "granted") return;
 
-    const { coords } = await Location.getCurrentPositionAsync({});
+    const { coords } = await Location.getCurrentPositionAsync({
+      accuracy: LocationAccuracy.Highest,
+    });
 
     if (coords) {
       const { longitude, latitude } = coords;

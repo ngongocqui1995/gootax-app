@@ -45,8 +45,7 @@ const BookDetail = ({ route, navigation }: any) => {
 
     if (err) {
       return toast.show({
-        description:
-          err?.response?.data?.message?.toString?.() || "Huỷ đặt xe thất bại!",
+        description: "Huỷ đặt xe thất bại!",
         placement: "top",
       });
     }
@@ -125,7 +124,7 @@ const BookDetail = ({ route, navigation }: any) => {
         <Center>
           <Box w="90%" p="4">
             <View>
-              <FormControl isRequired>
+              <FormControl isRequired isReadOnly>
                 <FormControl.Label>Loại xe</FormControl.Label>
                 <Select
                   placeholder="Chọn loại xe"
@@ -141,7 +140,7 @@ const BookDetail = ({ route, navigation }: any) => {
                   ))}
                 </Select>
               </FormControl>
-              <FormControl isRequired>
+              <FormControl isRequired isReadOnly>
                 <FormControl.Label>Khoảng cách</FormControl.Label>
                 <Input
                   value={`${distance || 0}`}
@@ -149,7 +148,7 @@ const BookDetail = ({ route, navigation }: any) => {
                   placeholder="Khoảng cách"
                 />
               </FormControl>
-              <FormControl isRequired>
+              <FormControl isRequired isReadOnly>
                 <FormControl.Label>Thành tiền</FormControl.Label>
                 <Input
                   value={`${amount || 0}`}

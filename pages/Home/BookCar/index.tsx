@@ -232,7 +232,11 @@ const BookCar = ({ route, navigation }: any) => {
                   {state.error.type_car}
                 </FormControl.ErrorMessage>
               </FormControl>
-              <FormControl isRequired isInvalid={!!state.error.distance}>
+              <FormControl
+                isRequired
+                isReadOnly
+                isInvalid={!!state.error.distance}
+              >
                 <FormControl.Label>Khoảng cách</FormControl.Label>
                 <Input
                   value={`${state.distance || 0}`}
@@ -243,7 +247,11 @@ const BookCar = ({ route, navigation }: any) => {
                   {state.error.distance}
                 </FormControl.ErrorMessage>
               </FormControl>
-              <FormControl isRequired isInvalid={!!state.error.amount}>
+              <FormControl
+                isRequired
+                isReadOnly
+                isInvalid={!!state.error.amount}
+              >
                 <FormControl.Label>Thành tiền</FormControl.Label>
                 <Input
                   value={`${state.amount || 0}`}

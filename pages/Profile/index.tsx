@@ -141,9 +141,9 @@ const Profile = ({ navigation }: any) => {
         <Divider />
         <Spacer />
         <Text
-          onPress={() => {
+          onPress={async () => {
             dispatch(resetProfile());
-            AsyncStorage.removeItem("token");
+            await AsyncStorage.removeItem("token");
             navigation.navigate(NAVIGATOR_SCREEN.LOGIN);
           }}
           fontSize={14}

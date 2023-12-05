@@ -96,10 +96,13 @@ const Activate = ({ navigation }: any) => {
                 status: item.status,
               });
             }}
-            disabled={[
-              ENUM_STATUS_BOOK.CANCELED,
-              ENUM_STATUS_BOOK.COMPLETED,
-            ].includes(item.status)}
+            disabled={
+              ![
+                ENUM_STATUS_BOOK.FINDING,
+                ENUM_STATUS_BOOK.PICKING,
+                ENUM_STATUS_BOOK.RIDING,
+              ].includes(item.status)
+            }
           >
             <Flex direction="row" alignItems="center" style={{ gap: 6 }}>
               <Image
