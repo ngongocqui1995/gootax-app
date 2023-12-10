@@ -68,6 +68,7 @@ const Login = ({ navigation }: any) => {
     );
 
     if (err) {
+      setState({ loading: false });
       return toast.show({
         description:
           err?.response?.data?.message?.toString?.() || "Đăng nhập thất bại!",
