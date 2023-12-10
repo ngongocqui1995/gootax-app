@@ -1,3 +1,4 @@
+import { useIsFocused } from "@react-navigation/native";
 import { useAsyncEffect, useRequest, useSetState } from "ahooks";
 import * as Location from "expo-location";
 import { LocationAccuracy } from "expo-location";
@@ -17,6 +18,7 @@ import { findGoogleMapsAPI } from "../../../services/location";
 import { NAVIGATOR_SCREEN } from "../../../utils/enum";
 
 const SearchLocation = ({ navigation }: any) => {
+  const isFocused = useIsFocused();
   const [state, setState] = useSetState({
     location_from: {
       address: "",
@@ -43,7 +45,7 @@ const SearchLocation = ({ navigation }: any) => {
   });
 
   useAsyncEffect(async () => {
-    let { status } = await Location.requestForegroundPermissionsAsync();
+    const { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") return;
 
     const { coords } = await Location.getCurrentPositionAsync({
@@ -58,7 +60,7 @@ const SearchLocation = ({ navigation }: any) => {
         location_from: { lat: latitude, lng: longitude, address: "" },
       });
     }
-  }, []);
+  }, [isFocused]);
 
   useAsyncEffect(async () => {
     if (state.active === 0) run(state.address_from);
@@ -105,7 +107,7 @@ const SearchLocation = ({ navigation }: any) => {
               fontSize="14"
               borderWidth="0"
               onPressIn={() => setState({ active: 0 })}
-              isReadOnly={state.active != 0}
+              // isReadOnly={state.active != 0}
               value={state.address_from}
               onChangeText={async (value) => {
                 setState({ address_from: value });
@@ -136,7 +138,7 @@ const SearchLocation = ({ navigation }: any) => {
                 run(value);
               }}
               backgroundColor={state.active === 1 ? "gray.300" : undefined}
-              isReadOnly={state.active != 1}
+              // isReadOnly={state.active != 1}
               InputLeftElement={
                 <Image
                   margin={3}

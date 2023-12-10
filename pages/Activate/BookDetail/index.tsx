@@ -1,3 +1,4 @@
+import { useIsFocused } from "@react-navigation/native";
 import { useAsyncEffect, useSetState } from "ahooks";
 import to from "await-to-js";
 import {
@@ -13,7 +14,7 @@ import {
   View,
   useToast,
 } from "native-base";
-import React from "react";
+import React, { useEffect } from "react";
 import { TouchableOpacity } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
@@ -30,10 +31,25 @@ const BookDetail = ({ route, navigation }: any) => {
   const { location_from, location_to, distance, amount, type_car, id, status } =
     route.params || {};
   const toast = useToast();
+  const isFocused = useIsFocused();
   const map = React.useRef<MapView | null>();
   const [state, setState] = useSetState({
     type_cars: [],
   });
+
+  useEffect(() => {
+    if (location_from.lat && location_from.lng) {
+      map.current?.animateToRegion(
+        {
+          latitude: location_from.lat,
+          longitude: location_from.lng,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        },
+        4000
+      );
+    }
+  }, [isFocused, location_from]);
 
   useAsyncEffect(async () => {
     const [, res] = await to(getTypeCars());
@@ -56,7 +72,7 @@ const BookDetail = ({ route, navigation }: any) => {
 
   return (
     <Flex direction="column">
-      <View height="70%">
+      <View height="60%">
         <MapView
           ref={(ref) => {
             map.current = ref;
@@ -120,7 +136,7 @@ const BookDetail = ({ route, navigation }: any) => {
           ) : null}
         </MapView>
       </View>
-      <View height="30%">
+      <View height="40%">
         <Center>
           <Box w="90%" p="4">
             <View>

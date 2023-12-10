@@ -55,6 +55,10 @@ const BookCar = ({ route, navigation }: any) => {
   useAsyncEffect(async () => {
     const [, res] = await to(getTypeCars());
     setState({ type_cars: res?.data || [] });
+
+    map.current?.fitToSuppliedMarkers(["mk1", "mk2"], {
+      edgePadding: { top: 100, right: 100, bottom: 100, left: 100 },
+    });
   }, []);
 
   const validate = () => {
@@ -98,6 +102,8 @@ const BookCar = ({ route, navigation }: any) => {
           phone: profile?.phone,
           type_car: state.type_car,
           customer: profile?.id,
+          distance: state.distance,
+          amount: state.amount,
         })
       );
 
@@ -116,7 +122,7 @@ const BookCar = ({ route, navigation }: any) => {
 
   return (
     <Flex direction="column">
-      <View height="70%">
+      <View height="60%">
         <MapView
           ref={(ref) => {
             map.current = ref;
@@ -194,7 +200,7 @@ const BookCar = ({ route, navigation }: any) => {
           ) : null}
         </MapView>
       </View>
-      <View height="30%">
+      <View height="40%">
         <Center>
           <Box w="90%" p="4">
             <View>

@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useIsFocused } from "@react-navigation/native";
 import { useAsyncEffect, useSetState } from "ahooks";
 import to from "await-to-js";
 import * as Location from "expo-location";
@@ -23,6 +24,7 @@ import { updateProfileInfo } from "../../slices/profileSlice";
 import { NAVIGATOR_SCREEN } from "../../utils/enum";
 
 const Login = ({ navigation }: any) => {
+  const isFocused = useIsFocused();
   const toast = useToast();
   const dispatch = useDispatch();
   const [state, setState] = useSetState({
@@ -84,6 +86,20 @@ const Login = ({ navigation }: any) => {
     }
     setState({ loading: false });
   };
+
+  useAsyncEffect(async () => {
+    const token = await AsyncStorage.getItem("token");
+    if (isFocused && token) {
+      setState({ loading: true });
+      const check = await updateProfile(token);
+
+      if (check) {
+        toast.show({ description: "Đăng nhập thành công!", placement: "top" });
+        navigation.navigate(NAVIGATOR_SCREEN.HOME_SCREEN);
+      }
+      setState({ loading: false });
+    }
+  }, [isFocused]);
 
   return (
     <Center w="100%" h="100%">
