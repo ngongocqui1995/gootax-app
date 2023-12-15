@@ -39,15 +39,11 @@ const BookDetail = ({ route, navigation }: any) => {
 
   useEffect(() => {
     if (location_from.lat && location_from.lng) {
-      map.current?.animateToRegion(
-        {
-          latitude: location_from.lat,
-          longitude: location_from.lng,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        },
-        4000
-      );
+      setTimeout(() => {
+        map.current?.fitToSuppliedMarkers(["mk1", "mk2"], {
+          edgePadding: { top: 100, right: 100, bottom: 100, left: 100 },
+        });
+      }, 1000);
     }
   }, [isFocused, location_from]);
 

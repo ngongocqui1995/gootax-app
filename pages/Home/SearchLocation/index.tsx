@@ -1,7 +1,7 @@
 import { useIsFocused } from "@react-navigation/native";
 import { useAsyncEffect, useRequest, useSetState } from "ahooks";
+import to from "await-to-js";
 import * as Location from "expo-location";
-import { LocationAccuracy } from "expo-location";
 import {
   ChevronLeftIcon,
   Divider,
@@ -12,10 +12,10 @@ import {
   Text,
   View,
 } from "native-base";
-import { useEffect } from "react";
 import { TouchableOpacity } from "react-native";
 import { findGoogleMapsAPI } from "../../../services/location";
 import { NAVIGATOR_SCREEN } from "../../../utils/enum";
+import { getCurrentPosition } from "../../../utils/utils";
 
 const SearchLocation = ({ navigation }: any) => {
   const isFocused = useIsFocused();
@@ -48,12 +48,13 @@ const SearchLocation = ({ navigation }: any) => {
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") return;
 
-    const { coords } = await Location.getCurrentPositionAsync({
-      accuracy: LocationAccuracy.Highest,
-    });
+    let location;
+    do {
+      [, location] = await to(getCurrentPosition());
+    } while (!location?.coords);
 
-    if (coords) {
-      const { longitude, latitude } = coords;
+    if (location.coords) {
+      const { longitude, latitude } = location.coords;
 
       setState({
         location_current: { lat: latitude, lng: longitude },
@@ -66,17 +67,6 @@ const SearchLocation = ({ navigation }: any) => {
     if (state.active === 0) run(state.address_from);
     if (state.active === 1) run(state.address_to);
   }, [state.active]);
-
-  useEffect(() => {
-    if (state.location_from.lat && state.location_to.lat) {
-      navigation.navigate(NAVIGATOR_SCREEN.BOOK_CAR, {
-        location_from: state.address_from
-          ? state.location_from
-          : state.location_current,
-        location_to: state.location_to,
-      });
-    }
-  }, [state.location_from, state.location_to]);
 
   return (
     <View>
@@ -163,7 +153,13 @@ const SearchLocation = ({ navigation }: any) => {
                   address: item?.formatted_address,
                 };
 
+                let location_from = location;
+                let location_to = location;
+                let address_from = "";
                 if (state.active === 0) {
+                  location_to = state.location_to;
+                  address_from = item?.formatted_address;
+
                   setState({
                     location_from: location,
                     address_from: item?.formatted_address,
@@ -171,9 +167,20 @@ const SearchLocation = ({ navigation }: any) => {
                 }
 
                 if (state.active === 1) {
+                  location_from = state.location_from;
+
                   setState({
                     location_to: location,
                     address_to: item?.formatted_address,
+                  });
+                }
+
+                if (location_from.lat && location_to.lat) {
+                  navigation.navigate(NAVIGATOR_SCREEN.BOOK_CAR, {
+                    location_from: address_from
+                      ? location_from
+                      : state.location_current,
+                    location_to,
                   });
                 }
               }}
